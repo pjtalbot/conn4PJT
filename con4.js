@@ -1,87 +1,128 @@
-let boardArr = []
-let playerTurn = 1
-const color1 = 'blue'
-const color2 = 'red'
-const width = 7
-const height = 6
-const turn = document.createElement('span')
-const HUD = document.createElement('div')
+let boardArr = [];
+let playerTurn = 1;
+const color1 = 'blue';
+const color2 = 'red';
+const width = 7;
+const height = 6;
+const turn = document.createElement('span');
+const HUD = document.createElement('div');
 
 function makeJsBoard() {
-    for (let i = 0; i < height; i++) {
-        let row = [0,0,0,0,0,0,0]
-        boardArr.push(row)
-    }
+	for (let i = 0; i < height; i++) {
+		let row = [ 0, 0, 0, 0, 0, 0, 0 ];
+		boardArr.push(row);
+	}
+}
+
+function disableMoves() {
+	let drop = document.getElementById('dropSelector');
+	drop.remove();
+}
+
+function clearBoard() {
+	boardArr = [];
+	playerTurn = 1;
+
+	const gameBoard2 = document.getElementById('board');
+	gameBoard2.remove();
+
+	let newBoard = document.createElement('table');
+	newBoard.setAttribute('id', 'board');
+	let game = document.getElementById('game');
+	game.appendChild(newBoard);
 }
 
 function switchPlayer() {
-    if (playerTurn === 1) {
-        playerTurn++
-            } else {
-            playerTurn--
-            }
+	if (playerTurn === 1) {
+		playerTurn++;
+	} else {
+		playerTurn--;
+	}
 }
 
 function makeHUD() {
-    
-    
-    turn.setAttribute('id', 'turn')
-    turn.classList.add('player1')
-    turn.innerText = `Player ${playerTurn}`
-    document.body.prepend(HUD)
-    HUD.append(turn)
+	turn.setAttribute('id', 'turn');
+	turn.classList.add('player1');
+	turn.innerText = `Player ${playerTurn}`;
+	document.body.prepend(HUD);
+	HUD.append(turn);
 }
 
 function updateHUD() {
-    
-    let HUDClass = turn.classList
-    HUDClass.toggle('player1')
-    
-    turn.innerText = `Player ${playerTurn}`
-    
+	let HUDClass = turn.classList;
+	// add "if" here to prevent this from switching on full
+	HUDClass.toggle('player1');
+
+	turn.innerText = `Player ${playerTurn}`;
 }
 
 function makeHTMLBoard() {
-    
-    const gameBoard = document.getElementById('board')
-    const dropSelector = document.createElement('tr')
-    dropSelector.setAttribute('id', 'dropSelector')
-    dropSelector.classList.add('player1')
-    dropSelector.addEventListener('click', handleClick)
+	const gameBoard = document.getElementById('board');
+	const dropSelector = document.createElement('tr');
 
-    for (let i = 0; i < width; i++) {
-        let topCell = document.createElement('td');
-        topCell.setAttribute('id', i);
-        dropSelector.append(topCell)
-    }
+	dropSelector.setAttribute('id', 'dropSelector');
+	dropSelector.classList.add('player1');
+	dropSelector.addEventListener('click', handleClick);
 
-    gameBoard.append(dropSelector)
+	for (let i = 0; i < width; i++) {
+		let topCell = document.createElement('td');
+		topCell.setAttribute('id', i);
+		dropSelector.append(topCell);
+	}
 
-    for (let y = 0; y < height; y++) {
-        const row = document.createElement('tr');
+	gameBoard.append(dropSelector);
 
-        if (y != 5) {
-            
-            for (let x = 0; x < width; x++){
-                const cell = document.createElement('td');
-                cell.setAttribute('id', `${y}-${x}`);
-                cell.classList.add(`row${y}`)
-                cell.classList.add(`col${x}`)
-                row.append(cell)
-            }
-        } else {
-            // bottom row (y=5) is classed 'drop-point', meaning it is where the circle will fall to
-            for (let x = 0; x < width; x++) {
-            const cell = document.createElement('td');
-            cell.setAttribute('id', `${y}-${x}`);
-            cell.classList.add(`row${y}`)
-            cell.classList.add(`col${x}`)
-            cell.classList.add('drop-point')
-            row.append(cell)
-            }
-        }
-        gameBoard.append(row);
-    }
+	for (let y = 0; y < height; y++) {
+		const row = document.createElement('tr');
+
+		if (y != 5) {
+			for (let x = 0; x < width; x++) {
+				const cell = document.createElement('td');
+				cell.setAttribute('id', `${y}-${x}`);
+				cell.classList.add(`row${y}`);
+				cell.classList.add(`col${x}`);
+				row.append(cell);
+			}
+		} else {
+			// bottom row (y=5) is classed 'drop-point', meaning it is where the circle will fall to
+			for (let x = 0; x < width; x++) {
+				const cell = document.createElement('td');
+				cell.setAttribute('id', `${y}-${x}`);
+				cell.classList.add(`row${y}`);
+				cell.classList.add(`col${x}`);
+				cell.classList.add('drop-point');
+				row.append(cell);
+			}
+		}
+		gameBoard.append(row);
+	}
+}
+function makeResetBtn() {
+	const resetBtn = document.createElement('button');
+	resetBtn.setAttribute('id', 'reset');
+	resetBtn.innerText = 'PLAY AGAIN?';
+
+	resetBtn.addEventListener('click', function() {
+		clearBoard();
+		makeJsBoard();
+		makeHTMLBoard();
+		updateHUD();
+
+		let win = document.getElementById('win-sign');
+
+		win.remove();
+
+		resetBtn.remove();
+	});
+	document.body.append(resetBtn);
+}
+function makeWinNotification(num) {
+	let playerVictory = document.createElement('p');
+	playerVictory.classList.add('hidden');
+	playerVictory.setAttribute('id', 'win-sign');
+	playerVictory.innerText = `PLAYER ${playerTurn} WINS`;
+	document.body.append(playerVictory);
+	makeResetBtn();
 }
 
 makeJsBoard();
@@ -89,174 +130,172 @@ makeHUD();
 makeHTMLBoard();
 
 function endGame(str) {
-    alert(str);
+	alert(str);
 }
 
-function placeInTable(yPos, xPos) {
-    const piece = document.createElement('div');
-    piece.classList.add('piece');
-    piece.classList.add(`player${playerTurn}`);
-    piece.style.top = -50 * (yPos + 2);
-  
-    const spot = document.getElementById(`${yPos}-${xPos}`);
-    spot.append(piece);
-  }
+function checkWinArr(arr) {
+	// scans all arrays of 4
+	if (arr.length === 4) return arr.every((e) => e === playerTurn);
+}
+
+// make Object to store and organize all win direction functions
+
+function winVert(x) {
+	let vert = [];
+	for (let i = 0; i < height; i++) {
+		vert.push(boardArr[i][x]);
+	}
+	for (let j = 0; j < height; j++) {
+		let vertWinArr = vert.slice(j, j + 4);
+		if (checkWinArr(vertWinArr)) {
+			makeWinNotification(playerTurn);
+			disableMoves();
+			endGame(`Player ${playerTurn} Wins!`);
+		}
+	}
+}
+
+function winDiagR(x, y) {
+	let diag = [];
+	for (let i = 0; i < width; i++) {
+		if (y - i <= 5 && y - i >= 0 && x + i <= 6 && x + i >= 0) {
+			diag.push(boardArr[y - i][x + i]);
+		}
+	}
+	for (let j = 0; j < 6; j++) {
+		let diagWinArr = diag.slice(j, j + 4);
+		if (checkWinArr(diagWinArr)) {
+			makeWinNotification(playerTurn);
+			disableMoves();
+			alert(`Player ${playerTurn} wins!`);
+		}
+	}
+}
+
+function winDiagUL(x, y) {
+	let diagUL = [];
+	for (let i = 0; i < width; i++) {
+		if (y + i <= 5 && y + i >= 0 && x - i <= 6 && x - i >= 0) {
+			diagUL.push(boardArr[y + i][x - i]);
+		}
+	}
+
+	for (let j = 0; j < height; j++) {
+		let diagWinArrUL = diagUL.slice(j, j + 4);
+		if (checkWinArr(diagWinArrUL)) {
+			makeWinNotification(playerTurn);
+			disableMoves();
+
+			alert(`Player ${playerTurn} wins!`);
+		}
+	}
+}
+
+function winDiagL(x, y) {
+	let diagL = [];
+	for (let i = 0; i < width; i++) {
+		if (y - i <= 5 && y - i >= 0 && x - i <= 6 && x - i >= 0) {
+			diagL.push(boardArr[y - i][x - i]);
+		}
+	}
+
+	for (let j = 0; j < height; j++) {
+		let diagWinArrL = diagL.slice(j, j + 4);
+		if (checkWinArr(diagWinArrL)) {
+			makeWinNotification(playerTurn);
+			disableMoves();
+
+			alert(`Player ${playerTurn} wins!`);
+		}
+	}
+}
+
+function winHor(y) {
+	for (let i = 0; i < width; i++) {
+		let horWinArr = boardArr[y].slice(i, i + 4);
+		if (checkWinArr(horWinArr)) {
+			console.log(checkWinArr(horWinArr));
+			makeWinNotification(playerTurn);
+			disableMoves();
+			alert(`Player ${playerTurn} wins!`);
+		}
+	}
+}
+
+function winDiagDL(x, y) {
+	let diagDL = [];
+	for (let i = 0; i < width; i++) {
+		if (y + i <= 5 && y + i >= 0 && x + i <= 6 && x + i >= 0) {
+			diagDL.push(boardArr[y + i][x + i]);
+		}
+	}
+	for (let j = 0; j < height; j++) {
+		let diagWinArrDL = diagDL.slice(j, j + 4);
+		if (checkWinArr(diagWinArrDL)) {
+			makeWinNotification(playerTurn);
+			disableMoves();
+			alert(`Player ${playerTurn} wins!`);
+		}
+	}
+}
+
+function checkForWin(x, y, playerTurn) {
+	if (boardArr.every((row) => row.every((val) => val != 0))) {
+		return endGame('Tie!');
+	}
+
+	if (winHor(y) || winVert(x) || winDiagR(x, y) || winDiagL(x, y) || winDiagUL(x, y) || winDiagDL(x, y)) {
+		makeWinNotification(playerTurn);
+	}
+}
+
+function placeInTable(x, y) {
+	const piece = document.createElement('div');
+	piece.classList.add('piece');
+	piece.classList.add(`player${playerTurn}`);
+	piece.style.top = -50 * (y + 2);
+
+	const spot = document.getElementById(`${y}-${x}`);
+	spot.append(piece);
+}
+
+function updateBoardArr(x, y) {
+	if (playerTurn === 1) {
+		boardArr[y][x] = 1;
+	} else {
+		boardArr[y][x] = 2;
+	}
+}
 
 function handleClick(e) {
+	let collumnList = Array.from(document.getElementById('dropSelector').children);
+	let xPos = collumnList.indexOf(e.target);
+	let rowList = Array.from(document.getElementsByClassName(`col${xPos}`));
+	let yourMove = document.querySelector(`.col${xPos}.drop-point`);
+	let yPos = rowList.indexOf(yourMove);
 
-    
-    
-    let dropRowArr = Array.from(document.getElementById('dropSelector').children)
-    let xPos = dropRowArr.indexOf(e.target)
-    let rowList = Array.from(document.getElementsByClassName(`col${xPos}`))
-    let yourMove = document.querySelector(`.col${xPos}.drop-point`)
-    
-    let yPos = rowList.indexOf(yourMove)
+	placeInTable(xPos, yPos);
 
-    let classes = dropSelector.classList;
-    classes.toggle("player1")
+	if (yPos !== -1) {
+		let dropClasses = dropSelector.classList;
+		dropClasses.toggle('player1');
+	} else {
+		console.log('nope');
+		return;
+	}
 
-    
+	if (boardArr[0][xPos] === 0) {
+		//    select the next verticle position and assign "drop-point" class to it
+		let nextDropPoint = document.querySelector(`.col${xPos}.row${yPos - 1}`);
+		if (nextDropPoint) {
+			nextDropPoint.classList.add('drop-point');
+		}
+		yourMove.classList.add(`player${playerTurn}`);
+		yourMove.classList.remove('drop-point');
+	}
 
-   if (boardArr[0][xPos] === 0) {
-    //    select the next verticle position and assign "drop-point" class to it
-        let nextDropPoint = document.querySelector(`.col${xPos}.row${yPos -1}`)
-
-        if (nextDropPoint) {nextDropPoint.classList.add('drop-point')}
-
-        yourMove.classList.add(`player${playerTurn}`)
-        yourMove.classList.remove('drop-point')
-
-        function updateBoardArr() {
-            if (playerTurn === 1) {
-               boardArr[yPos][xPos] = 1
-           } else {
-               boardArr[yPos][xPos] = 2
-               }
-           }
-        updateBoardArr();
-
-        placeInTable(yPos, xPos);
-   }
-
-        
-
-    function checkForWin() {
-
-        if (boardArr.every(row => row.every(val => val != 0))) {
-            return endGame('Tie!');
-          }
-
-        function checkWinArr(arr){
-            if (arr.length === 4)
-            return arr.every(e =>e === playerTurn)
-        }
-
-        function winHor() {for (let i = 0; i < width; i++) {
-            let horWinArr = boardArr[yPos].slice(i, i + 4) 
-            if (checkWinArr(horWinArr)){
-                alert(`Player ${playerTurn} wins!`)
-                    }
-                }
-            }   
-        function winVert() {
-            let vert = []
-            for (let i = 0; i < height; i++) {
-                vert.push(boardArr[i][xPos])
-            }
-            for (let j = 0; j < height; j++){
-            let vertWinArr = vert.slice(j, j + 4)
-            if (checkWinArr(vertWinArr)){
-                setTimeout(alert(`Player ${playerTurn} wins!`), 100)
-                    }
-                }
-            }
-
-        function winDiagR() {
-            let diag = []
-            for (let i = 0; i < width; i++) {
-            if ((yPos - i) <= 5 && (yPos - i) >= 0 && (xPos + i) <= 6 && (xPos + i) >= 0) {
-            diag.push(boardArr[yPos - i][xPos + i])
-                }
-            }
-            for (let j = 0; j < 6; j++) {
-            let diagWinArr = diag.slice(j, j + 4)
-            if (checkWinArr(diagWinArr))  {
-                alert(`Player ${playerTurn} wins!`)
-                }
-            }
-        }
-
-        function winDiagL() {
-            let diagL = []
-            for (let i = 0; i < width; i++) {
-                if ((yPos - i) <= 5 && (yPos - i) >= 0 && (xPos - i) <= 6 && (xPos - i) >= 0) {
-                diagL.push(boardArr[yPos - i][xPos - i])
-                }
-            }
-
-            for (let j = 0; j < height; j++) {
-                let diagWinArrL = diagL.slice(j, j + 4)
-                if (checkWinArr(diagWinArrL))  {
-                alert(`Player ${playerTurn} wins!`)
-                    }
-                }
-            }
-
-        function winDiagUL() {
-            let diagUL = []
-            for (let i = 0; i < width; i++) {
-
-                if ((yPos + i) <= 5 && (yPos + i) >= 0 && (xPos - i) <= 6 && (xPos - i) >= 0) {
-            
-                diagUL.push(boardArr[yPos + i][xPos - i])
-                 }
-            }
-
-            for (let j = 0; j < height; j++) {
-            let diagWinArrUL = diagUL.slice(j, j + 4)
-            if (checkWinArr(diagWinArrUL))  {
-                alert(`Player ${playerTurn} wins!`)
-                    }
-            }
-        }
-
-        function winDiagDL() {
-            let diagDL = []
-            for (let i = 0; i < width; i++) {
-            if ((yPos + i) <= 5 && (yPos + i) >= 0 && (xPos + i) <= 6 && (xPos + i) >= 0) {
-            diagDL.push(boardArr[yPos + i][xPos + i])
-                }
-            }
-            for (let j = 0; j < height; j++) {
-                let diagWinArrDL = diagDL.slice(j, j + 4)
-                if (checkWinArr(diagWinArrDL))  {
-                alert(`Player ${playerTurn} wins!`)
-                }
-            }
-        }
-
-
-   
-    winHor();
-    winVert();
-    winDiagR();
-    winDiagL();
-    winDiagDL();
-    winDiagUL();
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    }
-    
-    checkForWin();
-    switchPlayer();
-    updateHUD();
-} 
+	updateBoardArr(xPos, yPos);
+	checkForWin(xPos, yPos, playerTurn);
+	switchPlayer();
+	updateHUD();
+}
