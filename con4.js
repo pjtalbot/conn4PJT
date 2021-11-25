@@ -134,7 +134,7 @@ function endGame(str) {
 }
 
 function checkWinArr(arr) {
-	// scans all arrays of 4
+	// scans all arrays of 4, then returns true if that array of 4 contains all playerTurn
 	if (arr.length === 4) return arr.every((e) => e === playerTurn);
 }
 
@@ -150,21 +150,21 @@ function winVert(x) {
 		if (checkWinArr(vertWinArr)) {
 			makeWinNotification(playerTurn);
 			disableMoves();
-			endGame(`Player ${playerTurn} Wins!`);
 		}
 	}
 }
 
-function winDiagR(x, y) {
+function winDiagUpRight(x, y) {
 	let diag = [];
 	for (let i = 0; i < width; i++) {
 		if (y - i <= 5 && y - i >= 0 && x + i <= 6 && x + i >= 0) {
 			diag.push(boardArr[y - i][x + i]);
 		}
 	}
+	console.log(diag);
 	for (let j = 0; j < 6; j++) {
-		let diagWinArr = diag.slice(j, j + 4);
-		if (checkWinArr(diagWinArr)) {
+		let winDiagArrUpRight = diag.slice(j, j + 4);
+		if (checkWinArr(winDiagArrUpRight)) {
 			makeWinNotification(playerTurn);
 			disableMoves();
 			alert(`Player ${playerTurn} wins!`);
@@ -172,16 +172,16 @@ function winDiagR(x, y) {
 	}
 }
 
-function winDiagUL(x, y) {
-	let diagUL = [];
+function winDiagDownLeft(x, y) {
+	let diagDownLeft = [];
 	for (let i = 0; i < width; i++) {
 		if (y + i <= 5 && y + i >= 0 && x - i <= 6 && x - i >= 0) {
-			diagUL.push(boardArr[y + i][x - i]);
+			diagDownLeft.push(boardArr[y + i][x - i]);
 		}
 	}
 
 	for (let j = 0; j < height; j++) {
-		let diagWinArrUL = diagUL.slice(j, j + 4);
+		let diagWinArrUL = diagDownLeft.slice(j, j + 4);
 		if (checkWinArr(diagWinArrUL)) {
 			makeWinNotification(playerTurn);
 			disableMoves();
@@ -191,20 +191,20 @@ function winDiagUL(x, y) {
 	}
 }
 
-function winDiagL(x, y) {
-	let diagL = [];
+function winDiagUpLeft(x, y) {
+	let diagUpLeft = [];
 	for (let i = 0; i < width; i++) {
 		if (y - i <= 5 && y - i >= 0 && x - i <= 6 && x - i >= 0) {
-			diagL.push(boardArr[y - i][x - i]);
+			diagUpLeft.push(boardArr[y - i][x - i]);
 		}
 	}
+	console.log(diagUpLeft);
 
 	for (let j = 0; j < height; j++) {
-		let diagWinArrL = diagL.slice(j, j + 4);
-		if (checkWinArr(diagWinArrL)) {
+		let diagWinArrUpLeft = diagUpLeft.slice(j, j + 4);
+		if (checkWinArr(diagWinArrUpLeft)) {
 			makeWinNotification(playerTurn);
 			disableMoves();
-
 			alert(`Player ${playerTurn} wins!`);
 		}
 	}
@@ -222,16 +222,16 @@ function winHor(y) {
 	}
 }
 
-function winDiagDL(x, y) {
-	let diagDL = [];
+function winDiagDownRight(x, y) {
+	let diagDownRight = [];
 	for (let i = 0; i < width; i++) {
 		if (y + i <= 5 && y + i >= 0 && x + i <= 6 && x + i >= 0) {
-			diagDL.push(boardArr[y + i][x + i]);
+			diagDownRight.push(boardArr[y + i][x + i]);
 		}
 	}
 	for (let j = 0; j < height; j++) {
-		let diagWinArrDL = diagDL.slice(j, j + 4);
-		if (checkWinArr(diagWinArrDL)) {
+		let diagWinArrDownRight = diagDownRight.slice(j, j + 4);
+		if (checkWinArr(diagWinArrDownRight)) {
 			makeWinNotification(playerTurn);
 			disableMoves();
 			alert(`Player ${playerTurn} wins!`);
@@ -239,14 +239,17 @@ function winDiagDL(x, y) {
 	}
 }
 
-function checkForWin(x, y, playerTurn) {
+function checkForWin(x, y) {
 	if (boardArr.every((row) => row.every((val) => val != 0))) {
 		return endGame('Tie!');
 	}
 
-	if (winHor(y) || winVert(x) || winDiagR(x, y) || winDiagL(x, y) || winDiagUL(x, y) || winDiagDL(x, y)) {
-		makeWinNotification(playerTurn);
-	}
+	winHor(y);
+	winVert(x);
+	winDiagUpRight(x, y);
+	winDiagUpLeft(x, y);
+	winDiagDownLeft(x, y);
+	winDiagDownRight(x, y);
 }
 
 function placeInTable(x, y) {
@@ -295,7 +298,7 @@ function handleClick(e) {
 	}
 
 	updateBoardArr(xPos, yPos);
-	checkForWin(xPos, yPos, playerTurn);
-	switchPlayer();
+	checkForWin(xPos, yPos);
+	setTimeout(switchPlayer(), 100);
 	updateHUD();
 }
